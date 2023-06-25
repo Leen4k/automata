@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+	<link rel="stylesheet" href="index.css">
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script>
+	  tailwind.config = {
+		theme: {
+		  extend: {
+			colors: {
+			  clifford: '#da373d',
+			}
+		  }
+		}
+	  }
+	</script>
+</head>
+<body>
+<section class="grid lg:grid-cols-12 gap-8 mx-4 lg:mx-96 mt-32">
+	<div class="flex flex-col justify-center lg:col-span-6 transition-all">
+		<h2 class="text-bold transition-all text-2xl text-center mb-8">Finite Automata Simulator</h2>
+		<div id="stateList" class="flex flex-row flex-wrap gap-4">
+			<label for="" class="text-bold flex items-center">States</label>
+			<div id="add-text" class="text-slate-500 py-8 cursor-pointer" onclick="addInput()">Add your first state here...</div>
+		</div>
+		<form action="" id="formlist" class="flex flex-col gap-4 m-auto my-4 w-full transition-all">
+
+			<label for="" class="text-bold">Alphabets</label>
+			<input id="alphabets" type="text" placeholder="alphabets">
+
+			<label for="" class="text-bold">Initial State</label>
+			<input id="startingState" type="text" placeholder="Starting State">
+
+			<label for="" class="text-bold">Accepting State</label>
+			<input id="acceptState" type="text" placeholder="Accepting State">
+
+			<label for="" class="text-bold">Strings</label>
+			<input id="string" type="text" placeholder="Input String">
+
+		</form>
+		<div class="flex gap-4 transition-all">
+			<button type="submit" class="add p-2 flex-1 rounded-md" onclick="addInput()">Add states</button>
+			<button type="submit" href="#output" value="Submit" class="submitBtn p-2 flex-1 bg-indigo-400 text-slate-200 rounded-md">Submit</button>
+		</div>
+	</div>
+
+	<div id="output" class="flex flex-col output lg:col-span-6">
+		<h2 class="text-bold transition-all text-2xl text-center">Results</h2>
+		<div class="wrapper flex flex-col flex-wrap mt-8">	
+		</div>
+		<div class="result">
+		</div>
+	</div>
+</section>
+
+
+
+
+
+<script>
+
+var maxInputAllowed = 5;
+var inputCount = 0;
+
+const addInput = () => {
+			document.querySelector('#add-text').style.display='none'
+            inputCount++; // Increment input count by one
+            if(inputCount>5){
+                alert('You can add maximum 5 input fields.');
+                return;
+            }
+            let inputField = document.createElement('input');
+			inputField.type = "text";
+			inputField.name = "state";
+			inputCount > 1? inputField.placeholder= "state " +inputCount :inputField.placeholder = "initial state";
+			
+            document.getElementById("stateList").appendChild(inputField);       
+        }
+
+const submitForm = (e) => {
+	e.preventDefault();
+	let array = document.getElementsByName("state");
+	let State = [];
+	for (var i = 0; i < array.length; i++) {
+		State.push(array[i].value);
+	}
+	const lastState = [...State,State.push("error")];
+	console.log("last state "+ lastState)
+	// alert(State)
+	console.log(State)
+	// const State = [
+	// 	"Ends with heads", 
+	// 	"Ends with 1 tails", 
+	// 	"Ends with 2 tails", 
+	// 	"Error"
+	// ];
+	// const State = [
+	// 	"q0",
+	// 	"q1",
+	// 	"q2",
+	// 	"Error",
+	// ]
+	// const initialState = State[0];
+	// const acceptingStates = [State[2]];
+	// const errorState = State[3];
+
+
+	const initialState = document.getElementById("startingState").value;
+	const acceptingStates = document.getElementById("acceptState").value;
+	const errorState = State[State.length-1];
+	console.log(State.length-1)
+	const inputAlphabet = document.getElementById("alphabets").value;
+	// const inputAlphabet = "HT";
+
+	const transitionTable = 
+	{
+		0: [State[0], State[1]], // Transitions for "Ends with heads"
+		1: [State[0], State[2]], // Transitions for "Ends with 1 tails"
+		2: [State[0], State[2]], // Transitions for "Ends with 2 tails"
+		3: [State[3], State[3]]  // Transitions for "Error"
+	}; 
+	console.log(transitionTable)
+
+
+
+	function returnNextState(state, input)
+	{
+		if(inputAlphabet.includes(input) && State.includes(state))
+			return transitionTable[State.indexOf(state)][inputAlphabet.indexOf(input)];
+		else
+			return errorState;
+	}
+
+	let currentState = initialState;
+	// const inputSequence = "HTTHHTTTH";
+	// const inputSequence ="HTTT";
+	const inputSequence = document.getElementById("string").value;
+	console.log(inputSequence)
+	// const inputSequence = "10101010";
+
+	for(i = 0; i < inputSequence.length; i++)
+	{
+		const output = document.querySelector(".wrapper");		
+		
+		let currentInput = inputSequence.charAt(i);
+
+
+		output.innerHTML += `
+		    <div class="flex">
+				<p>Current state: <span class="text-indigo-500">${currentState}</span> </p> - Input: <strong> <span class="text-indigo-500">${currentInput}</span>
+				${!inputAlphabet.includes(currentInput)?currentState = errorState:  currentState=returnNextState(currentState, currentInput)};
+				--> Next State: <span class="text-indigo-500">${currentState}</span>
+				${acceptingStates.includes(currentState)?"<span class='text-indigo-500'>(accepting state)</span>":""}
+		    </div>
+			`;
+
+
+		// document.write("<br>Current state: <strong>" + currentState + "</strong> - Input: <strong>" + currentInput + "</strong>");
+		// if(!inputAlphabet.includes(currentInput)) currentState = errorState;
+		// else currentState = returnNextState(currentState, currentInput);
+		// document.write(" --> Next State: <strong>" + currentState + "</strong>");
+		// if(acceptingStates.includes(currentState)){
+		// 	console.log("true")
+		// 	document.write(" (accepting state)")
+		// } ;
+	}
+	const result = document.querySelector(".result");	
+	result.innerHTML = `<p>Ending state: <span class="text-indigo-500">${currentState}</span></p>
+	${acceptingStates.includes(currentState)?" <span class='text-indigo-500'>(accepting state)</span>":""}
+	`
+
+	// const timeOut = setInterval(() =>{document.querySelector(".result").innerHTML = `
+	// 		<div class="skeleton-wrapper">
+	// 			<div class='h-[20px] flex-1 w-[300px] bg-gray-200 rounded-full dark:bg-gray-700 w-48 mb-4 animate-pulse'></div>
+	// 			<div class='h-[20px] flex-1 w-[400px] bg-gray-200 rounded-full dark:bg-gray-700 w-48 mb-4 animate-pulse'></div>
+	// 			<div class='h-[20px] flex-1 w-[500px] bg-gray-200 rounded-full dark:bg-gray-700 w-48 mb-4 animate-pulse'></div>
+	// 			<div class='h-[20px] flex-1 w-full bg-gray-200 rounded-full dark:bg-gray-700 w-48 mb-4 animate-pulse'></div>
+	// 		</div>
+	// `})
+
+	// setTimeout(() => {
+  	// 	clearInterval(timeOut);
+	// }, 3000);
+
+	// document.write("<br>Ending state: " + currentState);
+	// if(acceptingStates.includes(currentState)) document.write(" (accepting state)");else document.write(" rejected");
+}
+const btn = document.querySelector(".submitBtn");
+btn.addEventListener("click",submitForm);
+
+
+</script>
+
+</body>
+</html>
